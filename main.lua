@@ -19,11 +19,11 @@ function love.update( dt )
     GameObjects.call( "update", dt )
 
     --  > Timers
-    for i, v in ipairs( Timers ) do
+    for k, v in pairs( Timers ) do
         v.time = v.time + dt
         if v.time >= v.max_time then
             v.callback()
-            table.remove( Timers, i )
+            Timers[k] = nil
         end
     end
 end
