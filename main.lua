@@ -2,17 +2,23 @@
 love.graphics.setDefaultFilter( "nearest" )
 
 --  > Dependencies
-require "lua.libs.class"
-require "lua.libs.timer"
-require "lua.libs.util"
-require "lua.libs.gameobjects"
-
---  > Game
-require "lua.shaders"
-
+require "lua.libs.require"
+require "lua.libs.*"
+require "lua.scenes.*"
+require "lua.*"
 
 --  > Framework
 function love.load()
+    love.setScene( Game )
+end
+
+function love.setScene( scene, ... )
+    if love._scene then love._scene:destroy() end
+
+    local args = { ... }
+    timer( 0, function() 
+        love._scene = scene( unpack( args ) )
+    end )
 end
 
 function love.update( dt )
