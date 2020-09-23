@@ -28,17 +28,19 @@ GameObject = class()
 
 --  @function GameObject:construct
 --      | description: Construct GameObject : called when a new instance is created
-function GameObject:construct()
+function GameObject:construct( ... )
     id = id + 1
     self.id = id
     objects[self.id] = self
 
-    self:init()
+    self:init( ... )
 end
 
 --  @function GameObject:init
 --      | description: Initialize GameObject
-function GameObject:init()
+--      | params:
+--          varargs args: Arguments passed by constructor
+function GameObject:init( ... )
 end
 
 --  @function GameObject:update
