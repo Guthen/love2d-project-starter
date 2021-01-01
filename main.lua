@@ -1,19 +1,25 @@
---  > Pixel-Art Filter
+--  pixel-art filter
 love.graphics.setDefaultFilter( "nearest" )
 
---  > Dependencies
+--  global variables
+DEBUG = false
+SIZE_FACTOR = 3
+
+--  dependencies
 require "lua.libs.require"
 require "lua.libs.*"
+require "lua.game.*"
 require "lua.scenes.*"
 require "lua.*"
 
---  > Framework
+--  framework
 function love.load()
+    math.randomseed( os.time() )
     love.setScene( Game )
 end
 
 function love.setScene( scene, ... )
-    if love._scene then love._scene:destroy() end
+    if love._scene then GameObjects.reset() end
 
     local args = { ... }
     timer( 0, function() 
@@ -24,7 +30,7 @@ end
 function love.update( dt )
     GameObjects.call( "update", dt )
 
-    --  > Timers
+    --  Timers
     for k, v in pairs( Timers ) do
         v.time = v.time + dt
         if v.time >= v.max_time then
@@ -35,6 +41,10 @@ function love.update( dt )
 end
 
 function love.keypressed( key )
+    if key == "," then
+        DEBUG = not DEBUG
+    end
+
     GameObjects.call( "keypress", key )
 end
 
@@ -42,9 +52,19 @@ function love.mousepressed( x, y, button )
     GameObjects.call( "mousepress", button, x, y )
 end
 
+function love.wheelmoved( x, y )
+    GameObjects.call( "wheelmove", x, y )
+end
+
 function love.draw()
-    GameObjects.call( "draw" )
+    Camera:push()
+    GameObjects.callSorted( "draw" )
+    Camera:pop()
     
-    love.graphics.origin()
-    love.graphics.print( love.timer.getFPS() .. " FPS", 5, 5 )
+    if DEBUG then
+        love.graphics.origin()
+        love.graphics.setColor( WHITE )
+        love.graphics.print( love.timer.getFPS() .. " FPS", 5, 5 )
+        love.graphics.print( "#Entities: " .. table_count( Entities ), 5, 25 )
+    end
 end

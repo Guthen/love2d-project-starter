@@ -1,6 +1,6 @@
---  > GameObjects
+--  GameObjects
 GameObjects = {}
-local objects, id = {}, 0
+local objects, sorted_objects, id = {}, {}, 0
 
 --  @function GameObjects.call
 --      | description: Call every GameObject on specified function
@@ -13,18 +13,47 @@ function GameObjects.call( key, ... )
     end
 end
 
+--  @function GameObjects.callSorted
+--      | description: Call every sorted GameObject on specified function
+--      | params:
+--          string key: Function's key/name to call
+--          varargs ...: All parameters to pass in the function's call
+function GameObjects.callSorted( key, ... )
+    for i, v in ipairs( sorted_objects ) do
+        v[key]( v, ... )
+    end
+end
+
+--  @function GameObjects.sort
+--      | description: Sort every GameObject, usefull for GameObjects.callSorted
+--      | params:
+--          function callback: sort callback, used by table.sort
+function GameObjects.sort( callback )
+    table.sort( sorted_objects, callback )
+end
+
+--  @function GameObjects.reset
+--      | description: Destroy every GameObject and reset all internal variables
+function GameObjects.reset()
+    GameObjects.call( "destroy" )
+    objects, sorted_objects, id = {}, {}, 0
+end
+
 --  @class GameObject
 --      | description: 
 --          Represent a game object in the game world. A game object has an update and a draw phase, 
 --          both called each frame.
 --      | member:
+--          GameObject:construct
 --          GameObject:init
 --          GameObject:update
 --          GameObject:keypress
 --          GameObject:mousepress
+--          GameObject:wheelmove
 --          GameObject:draw
 --          GameObject:destroy
 GameObject = class()
+GameObject._valid = true
 
 --  @function GameObject:construct
 --      | description: Construct GameObject : called when a new instance is created
@@ -32,6 +61,7 @@ function GameObject:construct( ... )
     id = id + 1
     self.id = id
     objects[self.id] = self
+    sorted_objects[#sorted_objects + 1] = self
 
     self:init( ... )
 end
@@ -61,7 +91,17 @@ end
 --      | description: Called when a mouse button has been pressed
 --      | params:
 --          number button: Mouse button which has been pressed
+--          number x: Mouse x-position
+--          number y: Mouse y-position
 function GameObject:mousepress( button, x, y )
+end
+
+--  @function GameObject:wheelmove
+--      | description: Called when the mouse wheel has been moved
+--      | params:
+--          number x: Mouse x-position
+--          number y: Mouse y-position
+function GameObject:wheelmove( x, y )
 end
 
 --  @function GameObject:draw
@@ -72,5 +112,14 @@ end
 --  @function GameObject:destroy
 --      | description: Destroy GameObject
 function GameObject:destroy()
+    self._valid = false
     objects[self.id] = nil
+
+    --  Remove from sorted
+    for i, v in ipairs( sorted_objects ) do
+        if not objects[v.id] then
+            table.remove( sorted_objects, i )
+            break
+        end
+    end
 end

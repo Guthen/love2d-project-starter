@@ -17,6 +17,32 @@ function table_copy( tbl )
     return copy
 end
 
+--  @function table_count
+--      | description: Count how many elements are present in the table
+--      | params:
+--          table tbl: Table to iterate
+--      | return number len
+function table_count( tbl )
+    return table_reduce( tbl, function( acc ) return acc + 1 end, 0 )
+end
+
+--  @function table_reduce
+--      | description: Iterate a table and accumulate a value
+--      | params:
+--          table tbl: Table to iterate
+--          function callback: Function (number acc, any v, any k, table tbl) who must return the new value of the accumulator
+--          any value = 0: Start value
+--      | return any acc
+function table_reduce( tbl, callback, value )
+    local acc = value or 0
+
+    for k, v in pairs( tbl ) do
+        acc = callback( acc, v, k, tbl )
+    end
+
+    return acc
+end
+
 --  @function lerp
 --      | description: Linear-Interpolation between two values
 --      | params:
@@ -125,4 +151,32 @@ function image( path )
     end
     
     return images[path]
+end
+
+--  @function clamp
+--      | description: Clamp a value between bounds
+--      | params:
+--          number value: Value to clamp
+--          number min: Minimal value
+--          number max: Maximal value
+--      | return number clamped_value
+function clamp( value, min, max )
+    return value < min and min or value > max and max or value
+end
+
+--  @function rgb
+--      | description: Create a color table
+--      | params:
+--          number r: Red component
+--          number g: Green component
+--          number b: Blue component
+--          number a = 255: Alpha component
+--      | return any acc
+function rgb( r, g, b, a )
+    return {
+        r / 255,
+        g / 255,
+        b / 255,
+        ( a or 255 ) / 255,
+    }
 end
