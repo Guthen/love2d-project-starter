@@ -15,7 +15,7 @@ Camera.translate_x, Camera.translate_y = 0, 0
 
 local w, h = love.graphics.getDimensions()
 function Camera:center( x, y )
-    self:set_pos( x - w / 2, y - h / 2 )
+    self:set_pos( x - w / 2 / self.scale, y - h / 2 / self.scale )
 end
 
 function Camera:set_pos( x, y )
