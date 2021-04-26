@@ -43,6 +43,23 @@ function table_reduce( tbl, callback, value )
     return acc
 end
 
+function print_table( tbl, tabs )
+    tabs = tabs or 0
+    
+    local tab = tabs > 0 and ( "\t" ):rep( tabs ) or ""
+    print( tab .. "{" )
+    for k, v in pairs( tbl ) do
+        if type( v ) == "table" then
+            print( tab .. "\t" .. tostring( k ) .. " = " )
+            print_table( v, tabs + 1 )
+        else
+            print( tab .. "\t" .. tostring( k ) .. " = " .. tostring( v ) )
+        end
+    end
+    print( tab .. "}" )
+end
+
+
 --  @function lerp
 --      | description: Linear-Interpolation between two values
 --      | params:
@@ -139,6 +156,73 @@ function quads( image )
     return quads
 end
 
+--  @function tileset
+--      | description: Create a table of quads of the given image according to a constant quad size
+--      | params:
+--          Image image: Image/Tileset reference
+--          number quad_w: Quad Width
+--          number quad_h: Quad Height
+--      | return: table quads
+function tileset( image, quad_w, quad_h )
+    local quads = {}
+
+    quad_h = quad_h or quad_w
+
+    local w, h = image:getDimensions()
+    for y = 0, h - quad_h, quad_h do
+        for x = 0, w - quad_w, quad_w do
+            quads[#quads + 1] = love.graphics.newQuad( x, y, quad_w, quad_h, w, h )
+        end
+    end
+
+    return quads
+end
+
+--  @function load_json_animations
+--      | description: Load an Aseprite-generated JSON file and create defined-quads
+--      | params:
+--          string filename: JSON filename
+--      | return: table anims
+local cached_anims = {}
+local json_parser = require "lua.libs.json"
+function load_json_animations( filename )
+    if cached_anims[filename] then return cached_anims[filename] end
+    local json = love.filesystem.read( filename )
+    if not json then return false end
+    
+    local content = json_parser.decode( json )
+    if not content then return false end
+    
+    local anims = {}
+    local w, h = content.meta.size.w, content.meta.size.h
+    for i, v in ipairs( content.meta.frameTags ) do
+        anims[v.name] = {}
+        for i = v.from, v.to do
+            local frame = content.frames[i + 1]
+            anims[v.name][#anims[v.name] + 1] = {
+                quad = love.graphics.newQuad( frame.frame.x, frame.frame.y, frame.frame.w, frame.frame.h, w, h ),
+                duration = frame.duration,
+                name = frame.filename,
+            }
+        end
+    end
+
+    return anims
+end
+
+function quads_from_animations( anims )
+    local quads = {}
+
+    for k, anims in pairs( anims ) do
+        quads[k] = {}
+        for i, v in ipairs( anims ) do
+            quads[k][#quads[k] + 1] = v.quad
+        end
+    end
+
+    return quads
+end
+
 --  @function image
 --      | description: Load and cache the specified image
 --      | params:
@@ -179,4 +263,30 @@ function rgb( r, g, b, a )
         b / 255,
         ( a or 255 ) / 255,
     }
+end
+
+--
+local offset = -SIZE_FACTOR
+function draw_outlined_text( text, font, x, y, limit, align, color, scale )
+    local w = font:getWidth( text )
+    local h = font:getHeight()
+
+    scale = scale or 1
+
+    local origin_x, origin_y = 0, 0
+    if align == "center" then
+        x, y = x + w / 2 * scale - limit / 2 * scale, y + h / 2
+        origin_x, origin_y = w / 2, h / 2
+    elseif align == "right" then
+        x = x - limit
+    end
+
+    --  outlined text
+    love.graphics.setFont( font )
+    love.graphics.setColor( BLACK )
+    love.graphics.printf( text, x, y - h, limit, align, 0, scale, scale, origin_x, origin_y )
+    
+    --  text
+    love.graphics.setColor( color )
+    love.graphics.printf( text, x + offset, y - h + offset, limit, align, 0, scale, scale, origin_x, origin_y )
 end
