@@ -39,6 +39,13 @@ function GameObjects.reset()
     objects, sorted_objects, id = {}, {}, 0
 end
 
+function GameObjects.add( object )
+    id = id + 1
+    object.id = id
+    objects[object.id] = object
+    sorted_objects[#sorted_objects + 1] = object
+end
+
 --  @class GameObject
 --      | description: 
 --          Represent a game object in the game world. A game object has an update and a draw phase, 
@@ -49,6 +56,9 @@ end
 --          GameObject:update
 --          GameObject:keypress
 --          GameObject:mousepress
+--          GameObject:mouserelease
+--          GameObject:gamepadpress
+--          GameObject:gamepadrelease
 --          GameObject:wheelmove
 --          GameObject:draw
 --          GameObject:destroy
@@ -58,10 +68,7 @@ GameObject._valid = true
 --  @function GameObject:construct
 --      | description: Construct GameObject : called when a new instance is created
 function GameObject:construct( ... )
-    id = id + 1
-    self.id = id
-    objects[self.id] = self
-    sorted_objects[#sorted_objects + 1] = self
+    GameObjects.add( self )
 
     self:init( ... )
 end
@@ -94,6 +101,29 @@ end
 --          number x: Mouse x-position
 --          number y: Mouse y-position
 function GameObject:mousepress( button, x, y )
+end
+
+--  @function GameObject:mouserelease
+--      | description: Called when a mouse button has been released
+--      | params:
+--          number button: Mouse button which has been released
+--          number x: Mouse x-position
+--          number y: Mouse y-position
+function GameObject:mouserelease( button, x, y )
+end
+
+--  @function GameObject:gamepadpress
+--      | description: Called when a gamepad button has been pressed
+--      | params:
+--          number button: Gamepad button which has been pressed
+function GameObject:gamepadpress( joystick, button )
+end
+
+--  @function GameObject:gamepadrelease
+--      | description: Called when a gamepad button has been released
+--      | params:
+--          number button: Gamepad which has been released
+function GameObject:gamepadrelease( joystick, button )
 end
 
 --  @function GameObject:wheelmove

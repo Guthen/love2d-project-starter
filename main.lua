@@ -52,6 +52,24 @@ function love.mousepressed( x, y, button )
     GameObjects.call( "mousepress", button, x, y )
 end
 
+function love.mousereleased( x, y, button )
+    GameObjects.call( "mouserelease", button, x, y )
+end
+
+--[[ function love.gamepadpressed( joystick, button )
+    GameObjects.call( "gamepadpress", joystick, button )
+end
+
+function love.gamepadreleased( joystick, button )
+    GameObjects.call( "gamepadrelease", joystick, button )
+end
+
+function love.joystickadded( joystick )
+end
+
+function love.joystickremoved( joystick )
+end ]]
+
 function love.wheelmoved( x, y )
     GameObjects.call( "wheelmove", x, y )
 end
