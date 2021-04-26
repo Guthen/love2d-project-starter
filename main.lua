@@ -3,7 +3,17 @@ love.graphics.setDefaultFilter( "nearest" )
 
 --  global variables
 DEBUG = false
-SIZE_FACTOR = 3
+SCR_W, SCR_H = 1280, 720
+TILE_SIZE = 12
+SIZE_FACTOR = 5
+
+Fonts = {
+    NORMAL = love.graphics.newFont( "assets/fonts/vkx_pixel.ttf", 50 ),
+    BIG = love.graphics.newFont( "assets/fonts/vkx_pixel.ttf", 100 ),
+    ENORMOUS = love.graphics.newFont( "assets/fonts/vkx_pixel.ttf", 140 ),
+}
+
+VERSION = "v1.0.0"
 
 --  dependencies
 require "lua.libs.require"
@@ -14,6 +24,11 @@ require "lua.*"
 
 --  framework
 function love.load()
+    love.graphics.setFont( Fonts.NORMAL )
+    love.window.setMode( SCR_W, SCR_H )
+    love.window.setTitle( "Game Title" )
+    love.graphics.setBackgroundColor( rgb( 6, 6, 8 ) )
+
     math.randomseed( os.time() )
     love.setScene( Game )
 end
@@ -72,6 +87,10 @@ end ]]
 
 function love.wheelmoved( x, y )
     GameObjects.call( "wheelmove", x, y )
+end
+
+function love.resize( w, h )
+    SCR_W, SCR_H = w, h
 end
 
 function love.draw()
