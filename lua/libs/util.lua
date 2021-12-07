@@ -255,7 +255,7 @@ end
 --          number g: Green component
 --          number b: Blue component
 --          number a = 255: Alpha component
---      | return any acc
+--      | return table color
 function rgb( r, g, b, a )
     return {
         r / 255,
@@ -263,6 +263,40 @@ function rgb( r, g, b, a )
         b / 255,
         ( a or 255 ) / 255,
     }
+end
+
+--  @function alpha
+--      | description: Create a color table from another color with the specified alpha
+--      | params:
+--          table color: Color table
+--          number a: Alpha value
+--      | return table color
+function alpha( color, a )
+    return {
+        color[1],
+        color[2],
+        color[3],
+        a,
+    }
+end
+
+--  @function some
+--      | description: Checks if one of the values in a table pass a test callback
+--      | params:
+--          table tbl: Table to check the values
+--          function callback: Test-callback, called for each values (until it returns true) with:
+--              any value: Current value
+--              any key: Current key
+--              table tbl: Table used
+--      | return boolean test_checked
+function some( tbl, callback )
+    for k, v in pairs( tbl ) do
+        if callback( v, k, tbl ) then
+            return true
+        end
+    end
+
+    return false
 end
 
 --
